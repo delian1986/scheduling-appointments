@@ -1,0 +1,15 @@
+/.env
+/laravel/vendor/
+/laravel/node_modules/
+/laravel/public/hot
+/laravel/public/storage
+/laravel/storage/*.key
+/laravel/storage/logs/
+/laravel/bootstrap/cache/*
+!/laravel/bootstrap/cache/.gitignore
+/laravel/.phpunit.result.cache
+/laravel/.env
+/laravel/.env.backup
+/laravel/.phpunit.cache
+.DS_Store
+Thumbs.db

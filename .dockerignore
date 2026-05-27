@@ -1,0 +1,13 @@
+.git
+.idea
+.vscode
+.env
+*.log
+laravel/vendor
+laravel/node_modules
+laravel/storage/logs/*
+laravel/bootstrap/cache/*
+!laravel/bootstrap/cache/.gitignore
+laravel/.phpunit.result.cache
+laravel/public/hot
+laravel/public/storage
