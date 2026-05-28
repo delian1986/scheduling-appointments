@@ -128,12 +128,21 @@
                                     >
                                         Edit
                                     </a>
-                                    <button
-                                        type="button"
-                                        class="rounded-md border border-red-200 px-3 py-1.5 text-sm text-red-700 hover:bg-red-50"
+                                    <form
+                                        method="DELETE"
+                                        action="{{ route('appointments.destroy', $appointment) }}"
+                                        onsubmit="return confirm('Сигурни ли сте, че искате да изтриете този час?');"
+                                        class="inline"
                                     >
-                                        Delete
-                                    </button>
+                                        @csrf
+                                        @method('DELETE')
+                                        <button
+                                            type="submit"
+                                            class="rounded-md border border-red-200 px-3 py-1.5 text-sm text-red-700 hover:bg-red-50"
+                                        >
+                                            Delete
+                                        </button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>

@@ -117,6 +117,26 @@ final class AppointmentController extends Controller
             ->with('success', $notificationMessageService->successMessage($validated['notification_method']));
     }
 
+    public function destroy(
+        Appointment $appointment,
+        AppointmentService $appointmentService,
+    ): RedirectResponse {
+        try {
+            $appointmentService->delete($appointment);
+        } catch (\Throwable $e) {
+            Log::error('Appointment delete failed', [
+                'error' => $e->getMessage(),
+                'appointment_id' => $appointment->id,
+            ]);
+
+            return back()->with('error', 'Възникна грешка при изтриване на часа. Опитайте отново.');
+        }
+
+        return redirect()
+            ->route('appointments.index')
+            ->with('success', 'Часът беше изтрит успешно.');
+    }
+
     /**
      * @return array{0: ?string, 1: ?string}
      */

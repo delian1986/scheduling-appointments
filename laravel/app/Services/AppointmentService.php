@@ -80,6 +80,11 @@ final class AppointmentService
         });
     }
 
+    public function delete(Appointment $appointment): bool
+    {
+        return $this->appointmentRepository->delete($appointment);
+    }
+
     /**
      * @param  array<string, mixed>  $validated
      */
