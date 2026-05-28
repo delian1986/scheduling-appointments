@@ -22,7 +22,7 @@ final class StoreAppointmentRequest extends FormRequest
     {
         return [
             'full_name' => ['required', 'string', 'min:2', 'max:255'],
-            'ucn' => ['required', 'string', 'regex:/^\d+$/', 'max:20'],
+            'ucn' => ['required', 'string', 'regex:/^\d+$/', 'min:10', 'max:20'],
             'description' => ['nullable', 'string'],
             'scheduled_at' => ['required', 'date', 'after:now'],
             'notification_method' => ['required', Rule::enum(NotificationMethod::class)],

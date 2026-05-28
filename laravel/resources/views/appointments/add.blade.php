@@ -53,6 +53,8 @@
                 id="ucn"
                 name="ucn"
                 value="{{ old('ucn') }}"
+                minlength="10"
+                maxlength="20"
                 inputmode="numeric"
                 pattern="[0-9]*"
                 class="w-full rounded-md border border-[#e3e3e0] px-3 py-2 text-sm @error('ucn') border-red-500 @enderror"
