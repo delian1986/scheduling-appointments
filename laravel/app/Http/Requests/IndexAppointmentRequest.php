@@ -24,6 +24,7 @@ final class IndexAppointmentRequest extends FormRequest
             'end_date'   => ['nullable', 'date', 'after_or_equal:start_date'],
             'end_time'   => ['nullable', 'date_format:H:i'],
             'ucn'        => ['nullable', 'string', 'regex:/^\d+$/', 'min:10', 'max:20'],
+            'direction'  => ['nullable', 'in:asc,desc'],
         ];
     }
 
@@ -48,6 +49,7 @@ final class IndexAppointmentRequest extends FormRequest
             'start_date' => $validated['start_date'] ?? null,
             'end_date'   => $validated['end_date'] ?? null,
             'ucn'        => $validated['ucn'] ?? null,
+            'direction'  => $validated['direction'] ?? 'desc',
         ], fn ($value) => $value !== null && $value !== '');
     }
 

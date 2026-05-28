@@ -34,12 +34,15 @@ final class AppointmentRepository implements AppointmentRepositoryInterface
 
     public function paginate(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
+        $direction = ($filters['direction'] ?? 'desc') === 'asc' ? 'asc' : 'desc';
+
         return Appointment::query()
             ->with('client')
             ->when($filters['start_date'] ?? null, fn ($query, $value) => $query->where('scheduled_at', '>=', $value))
             ->when($filters['end_date'] ?? null, fn ($query, $value) => $query->where('scheduled_at', '<=', $value))
             ->when($filters['ucn'] ?? null, fn ($query, $value) => $query->whereHas('client', fn ($clientQuery) => $clientQuery->where('ucn', $value)))
-            ->orderByDesc('scheduled_at')
+            ->when($filters['exclude_id'] ?? null, fn ($query, $value) => $query->where('id', '!=', $value))
+            ->orderBy('scheduled_at', $direction)
             ->paginate($perPage)
             ->withQueryString();
     }

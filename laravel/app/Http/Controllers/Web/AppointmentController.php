@@ -8,6 +8,7 @@ use App\Enums\NotificationMethod;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\IndexAppointmentRequest;
 use App\Http\Requests\StoreAppointmentRequest;
+use App\Models\Appointment;
 use App\Services\AppointmentService;
 use App\Services\NotificationMessageService;
 use Illuminate\Contracts\View\View;
@@ -32,6 +33,18 @@ final class AppointmentController extends Controller
                 'end_date_time'   => $endTime,
                 'ucn'             => $validated['ucn'] ?? null,
             ],
+        ]);
+    }
+
+    public function show(Appointment $appointment, AppointmentService $appointmentService): View
+    {
+        $appointment->load('client');
+
+        $futureAppointments = $appointmentService->paginateFutureForClient($appointment);
+
+        return view('appointments.show', [
+            'appointment' => $appointment,
+            'futureAppointments' => $futureAppointments,
         ]);
     }
 

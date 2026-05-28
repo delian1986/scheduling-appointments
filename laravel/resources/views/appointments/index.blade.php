@@ -116,12 +116,12 @@
                             <td class="px-4 py-3">{{ $appointment->client->full_name }}</td>
                             <td class="px-4 py-3 text-right">
                                 <div class="inline-flex gap-2">
-                                    <button
-                                    type="button"
-                                    class="rounded-md border border-[#e3e3e0] px-3 py-1.5 text-sm hover:bg-[#f8f8f6]"
+                                    <a
+                                        href="{{ route('appointments.show', $appointment) }}"
+                                        class="rounded-md border border-[#e3e3e0] px-3 py-1.5 text-sm hover:bg-[#f8f8f6]"
                                     >
                                         Details
-                                    </button>
+                                    </a>
                                     <button
                                         type="button"
                                         class="rounded-md border border-[#e3e3e0] px-3 py-1.5 text-sm hover:bg-[#f8f8f6]"

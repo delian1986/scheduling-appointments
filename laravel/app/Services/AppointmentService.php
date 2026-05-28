@@ -28,6 +28,18 @@ final class AppointmentService
         return $this->appointmentRepository->paginate($filters, $perPage);
     }
 
+    public function paginateFutureForClient(Appointment $appointment, int $perPage = 5): LengthAwarePaginator
+    {
+        $appointment->loadMissing('client');
+
+        return $this->appointmentRepository->paginate([
+            'ucn' => $appointment->client->ucn,
+            'start_date' => now()->toDateTimeString(),
+            'direction' => 'asc',
+            'exclude_id' => $appointment->id,
+        ], $perPage);
+    }
+
     /**
      * @param  array<string, mixed>  $validated
      */
