@@ -10,9 +10,15 @@ use App\Http\Resources\AppointmentResource;
 use App\Services\AppointmentService;
 use App\Services\NotificationMessageService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 final class AppointmentController extends Controller
 {
+    public function index(AppointmentService $appointmentService): AnonymousResourceCollection
+    {
+        return AppointmentResource::collection($appointmentService->paginate());
+    }
+
     public function store(
         StoreAppointmentRequest $request,
         AppointmentService $appointmentService,

@@ -15,9 +15,11 @@ use Illuminate\Support\Facades\Log;
 
 final class AppointmentController extends Controller
 {
-    public function index(): View
+    public function index(AppointmentService $appointmentService): View
     {
-        return view('appointments.index');
+        return view('appointments.index', [
+            'appointments' => $appointmentService->paginate(),
+        ]);
     }
 
     public function create(): View

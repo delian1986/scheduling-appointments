@@ -6,6 +6,7 @@ namespace App\Repositories\Eloquent;
 
 use App\Models\Appointment;
 use App\Repositories\Contracts\AppointmentRepositoryInterface;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 final class AppointmentRepository implements AppointmentRepositoryInterface
 {
@@ -29,5 +30,13 @@ final class AppointmentRepository implements AppointmentRepositoryInterface
     public function delete(Appointment $appointment): bool
     {
         return (bool) $appointment->delete();
+    }
+
+    public function paginate(int $perPage = 15): LengthAwarePaginator
+    {
+        return Appointment::query()
+            ->with('client')
+            ->orderByDesc('scheduled_at')
+            ->paginate($perPage);
     }
 }

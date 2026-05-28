@@ -1,6 +1,6 @@
 # Scheduling appointments — Docker (Laravel)
 
-Local stack: **nginx**, **PHP 8.3-FPM**, **MySQL 8**, **phpMyAdmin**, **Redis**, and a **Laravel** app in [`laravel/`](laravel/).
+Local stack: **nginx**, **PHP 8.4-FPM**, **MySQL 8**, **phpMyAdmin**, **Redis**, and a **Laravel** app in [`laravel/`](laravel/).
 
 ## Requirements
 
@@ -71,6 +71,15 @@ docker compose exec -w /var/www/html php npm run build
 
 ## Appointments API
 
+List appointments (paginated, newest scheduled first; soft-deleted rows are excluded):
+
+```bash
+curl http://localhost:8080/api/appointments \
+  -H "Accept: application/json"
+```
+
+Optional query: `?page=2` (15 per page by default). Response includes `data`, `links`, and `meta`.
+
 Create an appointment:
 
 ```bash
@@ -91,7 +100,7 @@ Send `Accept: application/json` so validation errors return JSON (`422`) instead
 
 Web UI:
 
-- `GET /` — appointments list stub
+- `GET /` — paginated appointments list (scheduled date, client name; Edit/Delete buttons are placeholders)
 - `GET /appointments/add` — add appointment form
 - `POST /appointments/add` — create appointment (redirects to list with success flash)
 

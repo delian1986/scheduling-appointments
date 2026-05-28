@@ -19,5 +19,53 @@
         </div>
     @endif
 
-    <p class="text-sm text-[#706f6c]">Appointment list will be available here.</p>
+    @if ($appointments->isEmpty())
+        <p class="text-sm text-[#706f6c]">No appointments yet.</p>
+    @else
+        <div class="overflow-hidden rounded-lg border border-[#e3e3e0] bg-white shadow-sm">
+            <table class="w-full text-left text-sm">
+                <thead class="border-b border-[#e3e3e0] bg-[#f8f8f6]">
+                    <tr>
+                        <th class="px-4 py-3 font-medium">Scheduled at</th>
+                        <th class="px-4 py-3 font-medium">Client</th>
+                        <th class="px-4 py-3 font-medium text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($appointments as $appointment)
+                        <tr class="border-b border-[#e3e3e0] last:border-b-0">
+                            <td class="px-4 py-3">{{ $appointment->scheduled_at->format('Y-m-d H:i') }}</td>
+                            <td class="px-4 py-3">{{ $appointment->client->full_name }}</td>
+                            <td class="px-4 py-3 text-right">
+                                <div class="inline-flex gap-2">
+                                    <button
+                                    type="button"
+                                    class="rounded-md border border-[#e3e3e0] px-3 py-1.5 text-sm hover:bg-[#f8f8f6]"
+                                    >
+                                        Details
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="rounded-md border border-[#e3e3e0] px-3 py-1.5 text-sm hover:bg-[#f8f8f6]"
+                                    >
+                                        Edit
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="rounded-md border border-red-200 px-3 py-1.5 text-sm text-red-700 hover:bg-red-50"
+                                    >
+                                        Delete
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-6">
+            {{ $appointments->links() }}
+        </div>
+    @endif
 @endsection
