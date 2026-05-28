@@ -1,0 +1,42 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Controllers\Web;
+
+use App\Enums\NotificationMethod;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreAppointmentRequest;
+use App\Services\AppointmentService;
+use App\Services\NotificationMessageService;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
+
+final class AppointmentController extends Controller
+{
+    public function index(): View
+    {
+        return view('appointments.index');
+    }
+
+    public function create(): View
+    {
+        return view('appointments.add', [
+            'notificationMethods' => NotificationMethod::cases(),
+        ]);
+    }
+
+    public function store(
+        StoreAppointmentRequest $request,
+        AppointmentService $appointmentService,
+        NotificationMessageService $notificationMessageService,
+    ): RedirectResponse {
+        $validated = $request->validated();
+
+        $appointmentService->create($validated);
+
+        return redirect()
+            ->route('appointments.index')
+            ->with('success', $notificationMessageService->successMessage($validated['notification_method']));
+    }
+}

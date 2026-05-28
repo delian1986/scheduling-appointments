@@ -17,9 +17,23 @@ if [[ ! -d vendor ]]; then
   composer install --no-interaction --prefer-dist
 fi
 
+if [[ ! -f public/build/manifest.json ]]; then
+  echo "Building frontend assets..."
+  if [[ -f package-lock.json ]]; then
+    npm ci
+  else
+    npm install
+  fi
+  npm run build
+fi
+
 if ! grep -qE '^APP_KEY=base64:.+' .env 2>/dev/null; then
   php artisan key:generate --force --no-interaction
 fi
+
+mkdir -p storage/framework/{sessions,views,cache/data} storage/logs bootstrap/cache
+chown -R www-data:www-data storage bootstrap/cache
+chmod -R ug+rwx storage bootstrap/cache
 
 host="${DB_HOST:-mysql}"
 port="${DB_PORT:-3306}"

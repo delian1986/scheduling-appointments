@@ -17,6 +17,8 @@ services:
     volumes:
       - ./laravel:/var/www/html
     environment:
+      CONTAINER_ROLE: app
+      RUN_MIGRATIONS: "false"
       DB_CONNECTION: mysql
       DB_HOST: mysql
       DB_PORT: 3306
@@ -26,8 +28,29 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
     depends_on:
+      migrate:
+        condition: service_completed_successfully
       mysql:
         condition: service_healthy
+
+  migrate:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    volumes:
+      - ./laravel:/var/www/html
+    environment:
+      CONTAINER_ROLE: migrate
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: ${MYSQL_DATABASE:-laravel}
+      DB_USERNAME: ${MYSQL_USER:-laravel}
+      DB_PASSWORD: ${MYSQL_PASSWORD:-laravel}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: "no"
 
   mysql:
     image: mysql:8.0
