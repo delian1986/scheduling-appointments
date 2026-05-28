@@ -129,7 +129,7 @@
                                         Edit
                                     </a>
                                     <form
-                                        method="DELETE"
+                                        method="POST"
                                         action="{{ route('appointments.destroy', $appointment) }}"
                                         onsubmit="return confirm('Сигурни ли сте, че искате да изтриете този час?');"
                                         class="inline"
