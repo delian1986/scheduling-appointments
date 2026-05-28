@@ -9,16 +9,16 @@ The application is split into thin HTTP controllers, a service layer with busine
 ```mermaid
 flowchart LR
   Browser["Browser / API client"] --> Nginx
-  Nginx --> PhpFpm["PHP-FPM (Laravel app)"]
-  PhpFpm --> Controllers["Http Controllers (Web / Api)"]
+  Nginx --> PhpFpm["PHP-FPM Laravel app"]
+  PhpFpm --> Controllers["Http Controllers Web / Api"]
   Controllers --> Services["AppointmentService"]
   Services --> RepoIface["AppointmentRepositoryInterface"]
-  RepoIface --> CacheDecorator["CachingAppointmentRepository (decorator)"]
-  CacheDecorator -->|"cache miss"| EloquentRepo["AppointmentRepository (Eloquent)"]
-  CacheDecorator <--> Redis[("Redis (tags: appointments)")]
+  RepoIface --> CacheDecorator["CachingAppointmentRepository decorator"]
+  CacheDecorator -->|"cache miss"| EloquentRepo["AppointmentRepository Eloquent"]
+  CacheDecorator <--> Redis[("Redis tags appointments")]
   EloquentRepo <--> MySQL[("MySQL 8")]
-  Services -->|"dispatch afterCommit"| Queue[("Jobs queue (DB driver)")]
-  Worker["worker container (queue:work)"] --> Queue
+  Services -->|"dispatch afterCommit"| Queue[("Jobs queue DB driver")]
+  Worker["worker container queue work"] --> Queue
   Worker --> NotificationService["AppointmentNotificationService"]
   NotificationService --> ChannelFactory["NotificationChannelFactory"]
   ChannelFactory --> Email["EmailNotificationChannel"]
@@ -32,8 +32,11 @@ Key layers:
 - **Repositories** ([`Contracts`](laravel/app/Repositories/Contracts/)) — bound in [`AppServiceProvider`](laravel/app/Providers/AppServiceProvider.php) to the Eloquent implementation, then transparently decorated with a Redis cache layer.
 - **Background work** — `Appointment` writes dispatch [`SendAppointmentNotificationJob`](laravel/app/Jobs/SendAppointmentNotificationJob.php) on the `database` queue; the dedicated **worker** container in [`docker-compose.yml`](docker-compose.yml) runs `php artisan queue:work`.
 
-## DATASET
-![dataset](./docs/dataset.png)
+## Dataset
+
+Two tables model the domain: `clients` (deduplicated by UCN) and `appointments` (one client per appointment, soft-deletable). Indexes on `scheduled_at` and `(client_id, scheduled_at)` keep list and per-client queries fast. The schema is defined in [`laravel/database/migrations/`](laravel/database/migrations/).
+
+![Database schema: clients and appointments](docs/dataset.png)
 
 ## Requirements
 
@@ -102,12 +105,6 @@ docker compose exec -w /var/www/html php npm run build
 - [`docker/php/docker-entrypoint.sh`](docker/php/docker-entrypoint.sh) — Laravel bootstrap before `php-fpm`.
 - [`docker/nginx/default.conf`](docker/nginx/default.conf) — nginx → PHP-FPM.
 - [`docs/`](docs/) — diagrams and screenshots (e.g. database schema).
-
-## Dataset
-
-Two tables model the domain: `clients` (deduplicated by UCN) and `appointments` (one client per appointment, soft-deletable). Indexes on `scheduled_at` and `(client_id, scheduled_at)` keep list and per-client queries fast. The schema is defined in [`laravel/database/migrations/`](laravel/database/migrations/).
-
-![Database schema: clients and appointments](docs/dataset.png)
 
 Highlights:
 

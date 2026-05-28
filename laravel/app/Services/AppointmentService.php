@@ -92,9 +92,10 @@ final class AppointmentService
     {
         $clientData = [
             'full_name' => $validated['full_name'],
-            'ucn' => $validated['ucn'],
         ];
 
+        // Only forward optional contact fields when present, so existing
+        // values for a returning client are not clobbered with NULL.
         if (! empty($validated['email'])) {
             $clientData['email'] = $validated['email'];
         }
@@ -103,11 +104,7 @@ final class AppointmentService
             $clientData['phone'] = $validated['phone'];
         }
 
-        $existing = $this->clientRepository->findByUcn($validated['ucn']);
-
-        return $existing !== null
-            ? $this->clientRepository->update($existing, $clientData)
-            : $this->clientRepository->create($clientData);
+        return $this->clientRepository->upsertByUcn($validated['ucn'], $clientData);
     }
 
     /**

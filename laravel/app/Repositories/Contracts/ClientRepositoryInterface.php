@@ -21,4 +21,9 @@ interface ClientRepositoryInterface
      * @param  array<string, mixed>  $attributes
      */
     public function update(Client $client, array $attributes): Client;
+
+    /**
+     * @param  array<string, mixed>  $attributes
+     */
+    public function upsertByUcn(string $ucn, array $attributes): Client;
 }

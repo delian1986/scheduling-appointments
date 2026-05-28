@@ -22,6 +22,13 @@ final class AppointmentController extends Controller
         return AppointmentResource::collection($appointmentService->paginate($request->filters()));
     }
 
+    public function show(Appointment $appointment): AppointmentResource
+    {
+        $appointment->load('client');
+
+        return AppointmentResource::make($appointment);
+    }
+
     public function store(
         StoreAppointmentRequest $request,
         AppointmentService $appointmentService,

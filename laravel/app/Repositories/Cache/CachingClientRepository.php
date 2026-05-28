@@ -58,6 +58,18 @@ final class CachingClientRepository implements ClientRepositoryInterface
         return $client;
     }
 
+    /**
+     * @param  array<string, mixed>  $attributes
+     */
+    public function upsertByUcn(string $ucn, array $attributes): Client
+    {
+        $client = $this->inner->upsertByUcn($ucn, $attributes);
+
+        $this->flushCache();
+
+        return $client;
+    }
+
     private function flushCache(): void
     {
         $this->appointmentCacheManager->flushAll();

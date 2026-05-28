@@ -30,4 +30,12 @@ final class ClientRepository implements ClientRepositoryInterface
 
         return $client->refresh();
     }
+
+    /**
+     * @param  array<string, mixed>  $attributes
+     */
+    public function upsertByUcn(string $ucn, array $attributes): Client
+    {
+        return Client::query()->updateOrCreate(['ucn' => $ucn], $attributes);
+    }
 }
