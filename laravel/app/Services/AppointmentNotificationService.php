@@ -39,14 +39,14 @@ final class AppointmentNotificationService
             return;
         }
 
-        if ($appointment->notification_status !== AppointmentNotificationStatus::Pending) {
-            $this->idempotencyService->release($idempotencyKey);
-
-            return;
-        }
-
         if ($appointment->notified_at !== null) {
             $this->idempotencyService->release($idempotencyKey);
+
+            Log::info('Appointment notification job skipped because already notified', [
+                'appointment_id' => $appointmentId,
+                'idempotency_key' => $idempotencyKey,
+                'notified_at' => $appointment->notified_at,
+            ]);
 
             return;
         }
@@ -54,11 +54,23 @@ final class AppointmentNotificationService
         if ($appointment->scheduled_at->isPast()) {
             $this->idempotencyService->release($idempotencyKey);
 
+            Log::info('Appointment notification job skipped because scheduled in the past', [
+                'appointment_id' => $appointmentId,
+                'idempotency_key' => $idempotencyKey,
+                'scheduled_at' => $appointment->scheduled_at,
+            ]);
+
             return;
         }
 
         if (! filled($appointment->client?->contactFor($appointment->notification_method))) {
             $this->idempotencyService->release($idempotencyKey);
+
+            Log::info('Appointment notification job skipped because no contact found', [
+                'appointment_id' => $appointmentId,
+                'idempotency_key' => $idempotencyKey,
+                'notification_method' => $appointment->notification_method,
+            ]);
 
             return;
         }
@@ -69,6 +81,12 @@ final class AppointmentNotificationService
 
         if (! $sent) {
             $this->idempotencyService->release($idempotencyKey);
+
+            Log::info('Appointment notification job failed to send', [
+                'appointment_id' => $appointmentId,
+                'idempotency_key' => $idempotencyKey,
+                'notification_method' => $appointment->notification_method,
+            ]);
         }
 
         $this->updateStatus(
