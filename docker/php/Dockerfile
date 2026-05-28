@@ -78,10 +78,6 @@ COPY laravel/composer.json laravel/composer.lock ./
 RUN composer install --no-interaction --prefer-dist --no-scripts --no-autoloader
 
 COPY laravel/ .
-RUN composer install --no-interaction --prefer-dist
-
-COPY --from=frontend /app/public/build ./public/build
-COPY --from=frontend /app/node_modules ./node_modules
 
 RUN set -eux; \
     mkdir -p \
@@ -93,6 +89,14 @@ RUN set -eux; \
         storage/logs \
         bootstrap/cache; \
     touch storage/logs/laravel.log; \
+    chmod -R ug+rwX storage bootstrap/cache
+
+RUN composer install --no-interaction --prefer-dist
+
+COPY --from=frontend /app/public/build ./public/build
+COPY --from=frontend /app/node_modules ./node_modules
+
+RUN set -eux; \
     chown -R www-data:www-data /var/www/html /opt/laravel; \
     chmod -R ug+rwX storage bootstrap/cache
 
