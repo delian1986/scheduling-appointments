@@ -14,8 +14,6 @@ use App\Services\AppointmentService;
 use App\Services\NotificationMessageService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Redirect;
-use Symfony\Component\HttpFoundation\Response;
 
 final class AppointmentController extends Controller
 {
@@ -58,9 +56,9 @@ final class AppointmentController extends Controller
     public function destroy(
         Appointment $appointment,
         AppointmentService $appointmentService,
-    ): Response {
+    ): JsonResponse {
         $appointmentService->delete($appointment);
 
-        return Redirect::route('appointments.index')->with('success', 'Часът беше изтрит успешно.');
+        return response()->json(null, 204);
     }
 }
