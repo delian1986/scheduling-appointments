@@ -8,13 +8,11 @@ RUN npm ci
 COPY laravel/ .
 RUN npm run build
 
-FROM php:8.3-fpm-bookworm
+FROM php:8.4-fpm-bookworm
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     default-mysql-client \
     git \
-    nodejs \
-    npm \
     unzip \
     libzip-dev \
     libpng-dev \
@@ -41,6 +39,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && docker-php-ext-enable redis \
     && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false $PHPIZE_DEPS \
     && rm -rf /var/lib/apt/lists/*
+
+COPY --from=frontend /usr/local/bin/node /usr/local/bin/node
+COPY --from=frontend /usr/local/lib/node_modules /usr/local/lib/node_modules
+RUN ln -sf /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
+ && ln -sf /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
