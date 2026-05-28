@@ -14,6 +14,9 @@ services:
     build:
       context: .
       dockerfile: docker/php/Dockerfile
+      args:
+        UID: "${UID:-1000}"
+        GID: "${GID:-1000}"
     volumes:
       - ./laravel:/var/www/html
     environment:
@@ -86,6 +89,9 @@ services:
     build:
       context: .
       dockerfile: docker/php/Dockerfile
+      args:
+        UID: "${UID:-1000}"
+        GID: "${GID:-1000}"
     command: ["php", "artisan", "queue:work", "--tries=3", "--timeout=60", "--sleep=1"]
     volumes:
       - ./laravel:/var/www/html

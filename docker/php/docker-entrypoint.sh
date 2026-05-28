@@ -9,31 +9,43 @@ if [[ ! -f artisan ]]; then
   exit 1
 fi
 
+mkdir -p \
+  storage/app/public \
+  storage/framework/sessions \
+  storage/framework/views \
+  storage/framework/cache/data \
+  storage/framework/testing \
+  storage/logs \
+  bootstrap/cache
+touch storage/logs/laravel.log
+
+if [[ ! -d vendor || -z "$(ls -A vendor 2>/dev/null)" ]]; then
+  echo "Restoring vendor/ from image baseline..."
+  cp -a /opt/laravel-build/vendor /var/www/html/vendor
+fi
+
+if [[ ! -d node_modules || -z "$(ls -A node_modules 2>/dev/null)" ]]; then
+  echo "Restoring node_modules/ from image baseline..."
+  cp -a /opt/laravel-build/node_modules /var/www/html/node_modules
+fi
+
+if [[ ! -f public/build/manifest.json ]]; then
+  echo "Restoring public/build from image baseline..."
+  mkdir -p public
+  rm -rf public/build
+  cp -a /opt/laravel-build/public/build /var/www/html/public/build
+fi
+
 if [[ ! -f .env ]]; then
   cp /opt/laravel/.env.example .env
 fi
 
-if [[ ! -d vendor ]]; then
-  composer install --no-interaction --prefer-dist
-fi
-
-if [[ ! -f public/build/manifest.json ]]; then
-  echo "Building frontend assets..."
-  if [[ -f package-lock.json ]]; then
-    npm ci
-  else
-    npm install
-  fi
-  npm run build
-fi
+chown -R www-data:www-data storage bootstrap/cache .env 2>/dev/null || true
+chmod -R ug+rwX storage bootstrap/cache 2>/dev/null || true
 
 if ! grep -qE '^APP_KEY=base64:.+' .env 2>/dev/null; then
-  php artisan key:generate --force --no-interaction
+  gosu www-data php artisan key:generate --force --no-interaction
 fi
-
-mkdir -p storage/framework/{sessions,views,cache/data} storage/logs bootstrap/cache
-chown -R www-data:www-data storage bootstrap/cache
-chmod -R ug+rwx storage bootstrap/cache
 
 host="${DB_HOST:-mysql}"
 port="${DB_PORT:-3306}"
@@ -54,7 +66,11 @@ for i in $(seq 1 60); do
 done
 
 if [[ "${CONTAINER_ROLE:-app}" == "app" && "${RUN_MIGRATIONS:-true}" != "false" ]]; then
-  php artisan migrate --force --no-interaction
+  gosu www-data php artisan migrate --force --no-interaction
 fi
 
-exec docker-php-entrypoint "$@"
+if [[ "${1:-}" == "php-fpm" ]]; then
+  exec docker-php-entrypoint "$@"
+else
+  exec gosu www-data docker-php-entrypoint "$@"
+fi
