@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Enums\NotificationMethod;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\IndexAppointmentRequest;
 use App\Http\Requests\StoreAppointmentRequest;
 use App\Services\AppointmentService;
 use App\Services\NotificationMessageService;
@@ -15,10 +16,22 @@ use Illuminate\Support\Facades\Log;
 
 final class AppointmentController extends Controller
 {
-    public function index(AppointmentService $appointmentService): View
+    public function index(IndexAppointmentRequest $request, AppointmentService $appointmentService): View
     {
+        $validated = $request->validated();
+
+        [$startDate, $startTime] = $this->splitDateTime($validated['start_date'] ?? null);
+        [$endDate, $endTime]     = $this->splitDateTime($validated['end_date'] ?? null);
+
         return view('appointments.index', [
-            'appointments' => $appointmentService->paginate(),
+            'appointments' => $appointmentService->paginate($request->filters()),
+            'filters' => [
+                'start_date_date' => $startDate,
+                'start_date_time' => $startTime,
+                'end_date_date'   => $endDate,
+                'end_date_time'   => $endTime,
+                'ucn'             => $validated['ucn'] ?? null,
+            ],
         ]);
     }
 
@@ -52,5 +65,23 @@ final class AppointmentController extends Controller
         return redirect()
             ->route('appointments.index')
             ->with('success', $notificationMessageService->successMessage($validated['notification_method']));
+    }
+
+    /**
+     * @return array{0: ?string, 1: ?string}
+     */
+    private function splitDateTime(?string $dateTime): array
+    {
+        if ($dateTime === null || $dateTime === '') {
+            return [null, null];
+        }
+
+        [$date, $time] = array_pad(explode(' ', $dateTime, 2), 2, null);
+
+        if ($time !== null) {
+            $time = substr($time, 0, 5);
+        }
+
+        return [$date, $time];
     }
 }

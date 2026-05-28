@@ -23,5 +23,8 @@ interface AppointmentRepositoryInterface
 
     public function delete(Appointment $appointment): bool;
 
-    public function paginate(int $perPage = 15): LengthAwarePaginator;
+    /**
+     * @param  array<string, string>  $filters
+     */
+    public function paginate(array $filters = [], int $perPage = 15): LengthAwarePaginator;
 }

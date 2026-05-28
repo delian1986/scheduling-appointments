@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\IndexAppointmentRequest;
 use App\Http\Requests\StoreAppointmentRequest;
 use App\Http\Resources\AppointmentResource;
 use App\Services\AppointmentService;
@@ -14,9 +15,9 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 final class AppointmentController extends Controller
 {
-    public function index(AppointmentService $appointmentService): AnonymousResourceCollection
+    public function index(IndexAppointmentRequest $request, AppointmentService $appointmentService): AnonymousResourceCollection
     {
-        return AppointmentResource::collection($appointmentService->paginate());
+        return AppointmentResource::collection($appointmentService->paginate($request->filters()));
     }
 
     public function store(

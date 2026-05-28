@@ -20,9 +20,12 @@ final class AppointmentService
         private readonly AppointmentRepositoryInterface $appointmentRepository,
     ) {}
 
-    public function paginate(int $perPage = 5): LengthAwarePaginator
+    /**
+     * @param  array<string, string>  $filters
+     */
+    public function paginate(array $filters = [], int $perPage = 5): LengthAwarePaginator
     {
-        return $this->appointmentRepository->paginate($perPage);
+        return $this->appointmentRepository->paginate($filters, $perPage);
     }
 
     /**
