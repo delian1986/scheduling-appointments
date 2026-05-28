@@ -53,6 +53,8 @@ for i in $(seq 1 60); do
   sleep 2
 done
 
-php artisan migrate --force --no-interaction
+if [[ "${CONTAINER_ROLE:-app}" == "app" && "${RUN_MIGRATIONS:-true}" != "false" ]]; then
+  php artisan migrate --force --no-interaction
+fi
 
 exec docker-php-entrypoint "$@"

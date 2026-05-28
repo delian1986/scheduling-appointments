@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Enums\AppointmentNotificationStatus;
 use App\Enums\NotificationMethod;
+use App\Jobs\SendAppointmentNotificationJob;
 use App\Models\Appointment;
 use App\Repositories\Contracts\AppointmentRepositoryInterface;
 use App\Repositories\Contracts\ClientRepositoryInterface;
@@ -22,6 +24,12 @@ final class AppointmentService
      */
     public function create(array $validated): Appointment
     {
+        /**
+         * TODO:: before saving to database most likely we'll need to apply additional logic 
+         * like validating the client, checking if the appointment is already scheduled, etc.
+         * how many appointments can we have in given time window
+         */
+
         return DB::transaction(function () use ($validated): Appointment {
             $clientData = [
                 'full_name' => $validated['full_name'],
@@ -42,15 +50,19 @@ final class AppointmentService
                 ? $this->clientRepository->update($existing, $clientData)
                 : $this->clientRepository->create($clientData);
 
-            return $this->appointmentRepository->create([
+            $appointment = $this->appointmentRepository->create([
                 'client_id' => $client->id,
                 'description' => $validated['description'] ?? null,
                 'scheduled_at' => $validated['scheduled_at'],
                 'notification_method' => $validated['notification_method'] instanceof NotificationMethod
                     ? $validated['notification_method']->value
                     : $validated['notification_method'],
-                'notification_status' => 'pending',
-            ])->load('client');
+                'notification_status' => AppointmentNotificationStatus::Pending->value,
+            ]);
+
+            SendAppointmentNotificationJob::dispatch($appointment->id)->afterCommit();
+
+            return $appointment->load('client');
         });
     }
 }

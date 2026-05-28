@@ -11,6 +11,7 @@ use App\Services\AppointmentService;
 use App\Services\NotificationMessageService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Log;
 
 final class AppointmentController extends Controller
 {
@@ -33,7 +34,18 @@ final class AppointmentController extends Controller
     ): RedirectResponse {
         $validated = $request->validated();
 
-        $appointmentService->create($validated);
+        try {
+            $appointmentService->create($validated);
+        } catch (\Throwable $e) {
+            Log::error('Appointment creation failed', [
+                'error' => $e->getMessage(),
+                'ucn' => $validated['ucn'] ?? null,
+            ]);
+
+            return back()
+                ->withInput()
+                ->with('error', 'Възникна грешка при запазване на часа. Опитайте отново.');
+        }
 
         return redirect()
             ->route('appointments.index')

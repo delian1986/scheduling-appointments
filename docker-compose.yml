@@ -18,13 +18,13 @@ services:
       - ./laravel:/var/www/html
     environment:
       CONTAINER_ROLE: app
-      RUN_MIGRATIONS: "false"
       DB_CONNECTION: mysql
       DB_HOST: mysql
       DB_PORT: 3306
       DB_DATABASE: ${MYSQL_DATABASE:-laravel}
       DB_USERNAME: ${MYSQL_USER:-laravel}
       DB_PASSWORD: ${MYSQL_PASSWORD:-laravel}
+      QUEUE_CONNECTION: database
       REDIS_HOST: redis
       REDIS_PORT: 6379
     depends_on:
@@ -66,5 +66,51 @@ services:
     ports:
       - "${REDIS_PORT:-63790}:6379"
 
+  redisinsight:
+    image: redis/redisinsight:latest
+    ports:
+      - "${REDISINSIGHT_PORT:-8082}:5540"
+    environment:
+      REDISINSIGHT_ACCEPT_LICENSE: "true"
+      RI_REDIS_HOST: redis
+      RI_REDIS_PORT: "6379"
+      RI_REDIS_ALIAS: scheduling-appointments
+      # No RI_REDIS_PASSWORD — your redis:alpine has no auth
+    volumes:
+      - redisinsight_data:/data
+    depends_on:
+      redis:
+        condition: service_started
+
+  worker:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    command: ["php", "artisan", "queue:work", "--tries=3", "--timeout=60", "--sleep=1"]
+    volumes:
+      - ./laravel:/var/www/html
+    environment:
+      CONTAINER_ROLE: worker
+      RUN_MIGRATIONS: "false"
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: ${MYSQL_DATABASE:-laravel}
+      DB_USERNAME: ${MYSQL_USER:-laravel}
+      DB_PASSWORD: ${MYSQL_PASSWORD:-laravel}
+      QUEUE_CONNECTION: database
+      REDIS_CLIENT: phpredis
+      REDIS_HOST: redis
+      REDIS_PASSWORD: null
+      REDIS_PORT: 6379
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      php:
+        condition: service_started
+
 volumes:
   mysql_data:
+  redisinsight_data:
