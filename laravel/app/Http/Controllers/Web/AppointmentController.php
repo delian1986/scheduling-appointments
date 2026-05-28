@@ -8,6 +8,7 @@ use App\Enums\NotificationMethod;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\IndexAppointmentRequest;
 use App\Http\Requests\StoreAppointmentRequest;
+use App\Http\Requests\UpdateAppointmentRequest;
 use App\Models\Appointment;
 use App\Services\AppointmentService;
 use App\Services\NotificationMessageService;
@@ -73,6 +74,42 @@ final class AppointmentController extends Controller
             return back()
                 ->withInput()
                 ->with('error', 'Възникна грешка при запазване на часа. Опитайте отново.');
+        }
+
+        return redirect()
+            ->route('appointments.index')
+            ->with('success', $notificationMessageService->successMessage($validated['notification_method']));
+    }
+
+    public function edit(Appointment $appointment): View
+    {
+        $appointment->load('client');
+
+        return view('appointments.edit', [
+            'appointment' => $appointment,
+            'notificationMethods' => NotificationMethod::cases(),
+        ]);
+    }
+
+    public function update(
+        UpdateAppointmentRequest $request,
+        Appointment $appointment,
+        AppointmentService $appointmentService,
+        NotificationMessageService $notificationMessageService,
+    ): RedirectResponse {
+        $validated = $request->validated();
+
+        try {
+            $appointmentService->update($appointment, $validated);
+        } catch (\Throwable $e) {
+            Log::error('Appointment update failed', [
+                'error' => $e->getMessage(),
+                'appointment_id' => $appointment->id,
+            ]);
+
+            return back()
+                ->withInput()
+                ->with('error', 'Възникна грешка при обновяване на часа. Опитайте отново.');
         }
 
         return redirect()

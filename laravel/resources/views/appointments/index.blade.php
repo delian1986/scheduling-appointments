@@ -122,12 +122,12 @@
                                     >
                                         Details
                                     </a>
-                                    <button
-                                        type="button"
+                                    <a
+                                        href="{{ route('appointments.edit', $appointment) }}"
                                         class="rounded-md border border-[#e3e3e0] px-3 py-1.5 text-sm hover:bg-[#f8f8f6]"
                                     >
                                         Edit
-                                    </button>
+                                    </a>
                                     <button
                                         type="button"
                                         class="rounded-md border border-red-200 px-3 py-1.5 text-sm text-red-700 hover:bg-red-50"

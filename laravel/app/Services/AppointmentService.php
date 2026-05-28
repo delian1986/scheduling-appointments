@@ -8,6 +8,7 @@ use App\Enums\AppointmentNotificationStatus;
 use App\Enums\NotificationMethod;
 use App\Jobs\SendAppointmentNotificationJob;
 use App\Models\Appointment;
+use App\Models\Client;
 use App\Repositories\Contracts\AppointmentRepositoryInterface;
 use App\Repositories\Contracts\ClientRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -52,38 +53,79 @@ final class AppointmentService
          */
 
         return DB::transaction(function () use ($validated): Appointment {
-            $clientData = [
-                'full_name' => $validated['full_name'],
-                'ucn' => $validated['ucn'],
-            ];
+            $client = $this->upsertClient($validated);
 
-            if (! empty($validated['email'])) {
-                $clientData['email'] = $validated['email'];
-            }
+            $appointment = $this->appointmentRepository->create(
+                $this->appointmentAttributes($validated, $client->id),
+            );
 
-            if (! empty($validated['phone'])) {
-                $clientData['phone'] = $validated['phone'];
-            }
+            return $this->finalizeAndNotify($appointment);
+        });
+    }
 
-            $existing = $this->clientRepository->findByUcn($validated['ucn']);
+    /**
+     * @param  array<string, mixed>  $validated
+     */
+    public function update(Appointment $appointment, array $validated): Appointment
+    {
+        return DB::transaction(function () use ($appointment, $validated): Appointment {
+            $client = $this->upsertClient($validated);
 
-            $client = $existing !== null
-                ? $this->clientRepository->update($existing, $clientData)
-                : $this->clientRepository->create($clientData);
-
-            $appointment = $this->appointmentRepository->create([
-                'client_id' => $client->id,
-                'description' => $validated['description'] ?? null,
-                'scheduled_at' => $validated['scheduled_at'],
-                'notification_method' => $validated['notification_method'] instanceof NotificationMethod
-                    ? $validated['notification_method']->value
-                    : $validated['notification_method'],
-                'notification_status' => AppointmentNotificationStatus::Pending->value,
+            $appointment = $this->appointmentRepository->update($appointment, [
+                ...$this->appointmentAttributes($validated, $client->id),
+                'notified_at' => null,
             ]);
 
-            SendAppointmentNotificationJob::dispatch($appointment->id)->afterCommit();
-
-            return $appointment->load('client');
+            return $this->finalizeAndNotify($appointment);
         });
+    }
+
+    /**
+     * @param  array<string, mixed>  $validated
+     */
+    private function upsertClient(array $validated): Client
+    {
+        $clientData = [
+            'full_name' => $validated['full_name'],
+            'ucn' => $validated['ucn'],
+        ];
+
+        if (! empty($validated['email'])) {
+            $clientData['email'] = $validated['email'];
+        }
+
+        if (! empty($validated['phone'])) {
+            $clientData['phone'] = $validated['phone'];
+        }
+
+        $existing = $this->clientRepository->findByUcn($validated['ucn']);
+
+        return $existing !== null
+            ? $this->clientRepository->update($existing, $clientData)
+            : $this->clientRepository->create($clientData);
+    }
+
+    /**
+     * @param  array<string, mixed>  $validated
+     * @return array<string, mixed>
+     */
+    private function appointmentAttributes(array $validated, int $clientId): array
+    {
+        return [
+            'client_id' => $clientId,
+            'description' => $validated['description'] ?? null,
+            'scheduled_at' => $validated['scheduled_at'],
+            'notification_method' => $validated['notification_method'] instanceof NotificationMethod
+                ? $validated['notification_method']->value
+                : $validated['notification_method'],
+            'notification_status' => AppointmentNotificationStatus::Pending->value,
+        ];
+    }
+
+    private function finalizeAndNotify(Appointment $appointment): Appointment
+    {
+        SendAppointmentNotificationJob::dispatch($appointment->id)->afterCommit();
+
+        return $appointment->load('client');
     }
 }

@@ -3,9 +3,17 @@
 @section('title', 'Appointment Details')
 
 @section('content')
-    <div class="mb-6">
-        <a href="{{ route('appointments.index') }}" class="text-sm text-[#706f6c] hover:underline">&larr; Back to appointments</a>
-        <h1 class="mt-2 text-2xl font-semibold">Appointment Details</h1>
+    <div class="mb-6 flex items-center justify-between">
+        <div>
+            <a href="{{ route('appointments.index') }}" class="text-sm text-[#706f6c] hover:underline">&larr; Back to appointments</a>
+            <h1 class="mt-2 text-2xl font-semibold">Appointment Details</h1>
+        </div>
+        <a
+            href="{{ route('appointments.edit', $appointment) }}"
+            class="rounded-md border border-[#e3e3e0] px-4 py-2 text-sm font-medium hover:bg-[#f8f8f6]"
+        >
+            Edit
+        </a>
     </div>
 
     <div class="mb-8 rounded-lg border border-[#e3e3e0] bg-white p-6 shadow-sm">
@@ -80,12 +88,12 @@
                                     >
                                         Details
                                     </a>
-                                    <button
-                                        type="button"
+                                    <a
+                                        href="{{ route('appointments.edit', $futureAppointment) }}"
                                         class="rounded-md border border-[#e3e3e0] px-3 py-1.5 text-sm hover:bg-[#f8f8f6]"
                                     >
                                         Edit
-                                    </button>
+                                    </a>
                                     <button
                                         type="button"
                                         class="rounded-md border border-red-200 px-3 py-1.5 text-sm text-red-700 hover:bg-red-50"
