@@ -1,0 +1,118 @@
+---
+description: Laravel and PHP 8.3+ coding standards, architecture, and best practices
+alwaysApply: true
+---
+
+# Laravel & PHP Expert
+
+Expert in Laravel, PHP, and related web development. Write concise, technical responses with accurate PHP/Laravel examples.
+
+## Core Principles
+
+- Prioritize SOLID principles and clean architecture
+- Follow PHP and Laravel best practices for consistency and readability
+- Design for scalability and maintainability
+- Prefer iteration and modularization over duplication
+- Use consistent, descriptive names for variables, methods, and classes
+
+## Dependencies
+
+- Composer for dependency management
+- PHP 8.3+
+- Laravel 11.0+
+
+## PHP & Laravel Standards
+
+- Leverage PHP 8.3+ features (typed properties, match expressions, union/nullable types)
+- Adhere to PSR-12 coding standards
+- Always use strict typing: `declare(strict_types=1);`
+- Use Laravel's built-in features, helpers, directory structure, and naming conventions
+- Use Eloquent ORM for database interactions; Query Builder for complex operations
+- Maintain proper database migrations and seeders
+- Use Laravel validation (Form Requests) for form and request data
+- Implement middleware for request filtering and modification
+
+### Error Handling
+
+```php
+// ✅ GOOD — use Laravel's exception handling and logging
+try {
+    $result = $this->orderService->process($request->validated());
+} catch (PaymentFailedException $e) {
+    Log::error('Payment failed', ['order_id' => $orderId, 'error' => $e->getMessage()]);
+    throw $e;
+}
+```
+
+- Use Laravel's exception handler and logging facade
+- Create custom exceptions when necessary
+- Use try-catch blocks for expected exceptions only
+
+## Laravel Best Practices
+
+- Eloquent ORM and Query Builder over raw SQL when possible
+- Repository and Service patterns for organization and reusability
+- Built-in auth/authorization (Sanctum, Policies)
+- Caching (Redis, Memcached) for performance
+- Job queues and Horizon for background processing
+- PHPUnit and Dusk for unit, feature, and browser tests
+- API Resources and versioning for maintainable APIs
+- Database indexing and query optimization
+- Telescope for debugging in development
+- Nova or Filament for admin panels
+- Security: CSRF protection, XSS prevention, input sanitization
+
+## Code Architecture
+
+### Naming Conventions
+
+- Singular models, plural controllers (`User.php`, `UsersController.php`)
+- PascalCase for classes, camelCase for methods, snake_case for DB columns
+
+### Controllers
+
+- Final, read-only classes (no property mutations)
+- Prefer method injection or service classes over constructor injection
+- Keep controllers thin; delegate business logic to services
+
+```php
+// ✅ GOOD
+final class UsersController extends Controller
+{
+    public function store(StoreUserRequest $request, UserService $userService): JsonResponse
+    {
+        return UserResource::make($userService->create($request->validated()));
+    }
+}
+```
+
+### Models
+
+- Final classes to prevent unexpected inheritance behavior
+
+### Services
+
+- Place in `app/Services/`, organized by model or domain
+- Final, read-only classes for complex business logic
+
+### Routing
+
+- Separate route files per major model or feature area (e.g., `routes/user.php`)
+- Group related routes together
+
+### Type Declarations
+
+- Explicit return types on all methods and functions
+- Type hints on all parameters and properties
+- Leverage PHP 8.3+ union and nullable types where appropriate
+
+## Key Points
+
+- Follow MVC for separation of business logic, data, and presentation
+- Form Requests for validation; Sanctum for API token management
+- API Resources for structured REST responses with versioning
+- Task scheduling and event listeners to decouple logic
+- Database transactions via Laravel's DB facade for data consistency
+- Eloquent relationships with optimized queries (eager loading)
+- Redis/Memcached caching for performance
+- Robust error handling and logging via exception handler and Log facade
