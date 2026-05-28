@@ -7,8 +7,7 @@ namespace App\Http\Controllers\Web;
 use App\Enums\NotificationMethod;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\IndexAppointmentRequest;
-use App\Http\Requests\StoreAppointmentRequest;
-use App\Http\Requests\UpdateAppointmentRequest;
+use App\Http\Requests\SaveAppointmentRequest;
 use App\Models\Appointment;
 use App\Services\AppointmentService;
 use App\Services\NotificationMessageService;
@@ -57,7 +56,7 @@ final class AppointmentController extends Controller
     }
 
     public function store(
-        StoreAppointmentRequest $request,
+        SaveAppointmentRequest $request,
         AppointmentService $appointmentService,
         NotificationMessageService $notificationMessageService,
     ): RedirectResponse {
@@ -92,7 +91,7 @@ final class AppointmentController extends Controller
     }
 
     public function update(
-        UpdateAppointmentRequest $request,
+        SaveAppointmentRequest $request,
         Appointment $appointment,
         AppointmentService $appointmentService,
         NotificationMessageService $notificationMessageService,

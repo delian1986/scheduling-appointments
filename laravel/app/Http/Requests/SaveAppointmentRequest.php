@@ -8,7 +8,7 @@ use App\Enums\NotificationMethod;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-final class StoreAppointmentRequest extends FormRequest
+final class SaveAppointmentRequest extends FormRequest
 {
     public function authorize(): bool
     {

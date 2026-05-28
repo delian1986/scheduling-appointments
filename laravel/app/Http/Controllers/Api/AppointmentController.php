@@ -6,8 +6,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\IndexAppointmentRequest;
-use App\Http\Requests\StoreAppointmentRequest;
-use App\Http\Requests\UpdateAppointmentRequest;
+use App\Http\Requests\SaveAppointmentRequest;
 use App\Http\Resources\AppointmentResource;
 use App\Models\Appointment;
 use App\Services\AppointmentService;
@@ -30,7 +29,7 @@ final class AppointmentController extends Controller
     }
 
     public function store(
-        StoreAppointmentRequest $request,
+        SaveAppointmentRequest $request,
         AppointmentService $appointmentService,
         NotificationMessageService $notificationMessageService,
     ): JsonResponse {
@@ -45,7 +44,7 @@ final class AppointmentController extends Controller
     }
 
     public function update(
-        UpdateAppointmentRequest $request,
+        SaveAppointmentRequest $request,
         Appointment $appointment,
         AppointmentService $appointmentService,
         NotificationMessageService $notificationMessageService,
