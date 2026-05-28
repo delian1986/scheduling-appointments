@@ -30,42 +30,42 @@
     @endif
 
     <form method="GET" action="{{ route('appointments.index') }}" class="mb-6 rounded-lg border border-[#e3e3e0] bg-white p-4 shadow-sm">
-        <div class="grid gap-4 md:grid-cols-3">
-            <div>
+        <div class="grid gap-4 sm:grid-cols-2">
+            <div class="min-w-0">
                 <label class="mb-1 block text-sm font-medium">Start date</label>
-                <div class="flex gap-2">
+                <div class="flex min-w-0 gap-2">
                     <input
                         type="date"
                         name="start_date"
                         value="{{ old('start_date', $filters['start_date_date'] ?? '') }}"
-                        class="w-full rounded-md border border-[#e3e3e0] px-3 py-2 text-sm"
+                        class="min-w-0 flex-1 rounded-md border border-[#e3e3e0] px-3 py-2 text-sm"
                     >
                     <input
                         type="time"
                         name="start_time"
                         value="{{ old('start_time', $filters['start_date_time'] ?? '') }}"
-                        class="w-32 rounded-md border border-[#e3e3e0] px-3 py-2 text-sm"
+                        class="w-28 shrink-0 rounded-md border border-[#e3e3e0] px-3 py-2 text-sm"
                     >
                 </div>
             </div>
-            <div>
+            <div class="min-w-0">
                 <label class="mb-1 block text-sm font-medium">End date</label>
-                <div class="flex gap-2">
+                <div class="flex min-w-0 gap-2">
                     <input
                         type="date"
                         name="end_date"
                         value="{{ old('end_date', $filters['end_date_date'] ?? '') }}"
-                        class="w-full rounded-md border border-[#e3e3e0] px-3 py-2 text-sm"
+                        class="min-w-0 flex-1 rounded-md border border-[#e3e3e0] px-3 py-2 text-sm"
                     >
                     <input
                         type="time"
                         name="end_time"
                         value="{{ old('end_time', $filters['end_date_time'] ?? '') }}"
-                        class="w-32 rounded-md border border-[#e3e3e0] px-3 py-2 text-sm"
+                        class="w-28 shrink-0 rounded-md border border-[#e3e3e0] px-3 py-2 text-sm"
                     >
                 </div>
             </div>
-            <div>
+            <div class="min-w-0 sm:col-span-2">
                 <label for="ucn" class="mb-1 block text-sm font-medium">Client UCN</label>
                 <input
                     type="text"
